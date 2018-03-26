@@ -1,0 +1,489 @@
+1. 脚手架结构：
+    ├── build                       构建服务和webpack配置
+        |—— build.js                webpack打包服务
+        |—— webpack.base.conf.js    webpack基本通用配置
+        |—— webpack.dev.conf.js     webpack开发环境配置
+        |—— webpack.prod.conf.js    webpack生产环境配置
+    ├── config                      构建项目不同环境的配置
+    ├── public                      项目打包文件存放目录
+    ├── index.html                  项目入口文件
+    ├── package.json                项目配置文件
+    ├── static                       静态资源
+    ├── .babelrc                    babel配置文件
+    ├── .gitignore                  git忽略文件
+    ├── postcss.config.js           postcss配置文件
+    ├── src                         项目目录
+        |—— page                    页面组件目录
+        |—— router                  vue路由配置
+        |—— store                   vuex配置
+        |—— App.vue                 vue实例入口
+        |—— main.js                 项目构建入口
+2. 配置npm scripts
+    利用npm init生成package.json文件；
+        npm init；
+    全局安装webpack与webpack-dev-server；
+        npm install webpack webpack-dev-server -g
+    在项目目录下安装webpack与webpack-dev-server；
+        npm install webpack webpack-dev-server -D
+    在package.json文件中配置npm scripts命令；
+        "scripts": {
+            "dev": "webpack-dev-server --config build/webpack-dev-server.js",
+            "start": "npm run dev",
+            "build": "node build/build.js"
+        };
+        通过配置以上命令我们可以通过npm start/npm run dev在本地进行开发,
+        scripts.dev命令解读:
+            通过webpack-dev-server命令 启动build文件夹下webpack.dev.conf.js;
+            也可以通过npm run build 打包项目文件进行线上部署;
+        scripts.build命令解读：
+            通过node命令构建build文件夹下的build.js;
+            命令的配置可以根据自己脚手架的配置文件位置和名称不同进行修改;
+3. 配置config/index.js--用来配置构建开发环境和生产环境差异化的参数
+    const _path = require("path");
+    const ExtractTextPlugin = require("extract-text-webpack-plugin");
+    // vue-loader 基本配置
+    const baseVueLoaderConf = {
+        // 引入postcss插件
+        postcss: {
+            config: {
+                path: _path.resolve("../")
+            }
+        },
+        // 转为require调用,让webpack处理目标资源
+        tansformToRequire: {
+            video: "src",
+            source: "src",
+            img: "src",
+            image: "xlint:href"
+        }
+    };
+    // vue-loader 开发环境配置
+    const devVueLoaderConf = {
+        // loaders
+        loaders: {
+            css: ["vue-style-loader", "css-loader"],
+            less: ["vue-style-loader", "css-loader", "postcss-loader", "less-loader"],
+            cssSourceMap: true
+        }
+    };
+    // vue-loader 生产环境配置
+    const buildVueLoaderConf = {
+        // loaders
+        loaders: ExtractTextPlugin.extract({
+            use: ["css-loader", "postcss-loader", "less-loader"],
+            fallback: "vue-style-loader"
+        }),
+        cssSourceMap: false
+    }
+    // 开发/生产环境参数配置
+    module.exports = {
+        dev: {
+            publicPath: "/",
+            devtoolType: "cheap-module-eval-source-map",
+            vueLoaderConf: devVueLoaderConf,
+            host: "localhost",
+            port: "1234",
+            proxyTable: {}
+        },
+        build: {
+            publicPath: "/",
+            devtoolType: "source-map",
+            vueLoaderConf: buildVueLoaderConf,
+            staticPath: "static"
+        }
+    };
+4. 构建build/webpack.base.conf.js--webpack开发环境和生成环境的通用配置
+    "use strict"
+    // 引入node路径模块
+    const path = require("path");
+    // 引入webpack生产环境配置参数
+    const prodConfig = require("../config").build;
+    // 拼接路径
+    function resolve (dir) {
+        return path.join(__dirname, '..', dir);
+    }
+    // 资源路径
+    function assetsPath (_path) {
+        return path.join(prodConfig.staticPath, _path);
+    }
+    // webpack基本配置
+    module.exports = {
+        // 项目入口文件--webpack从此处开始构建
+        entry: path.resolve(__dirname, ''../src/main.js),
+        // 配置模块如何被解析
+        resolve: {
+            // 自动解析文件扩展名(补全文件后缀)(从左至右)
+            // import hello from './hello' (!hello.js? -> !hello.vue? -> !hello.json)
+            extentions: [".js", ".vue", ".json"],
+            // 配置别名映射
+            alias: {
+                // import Vue from 'vue/dist/vue.esm.js'可以写成 import Vue from 'vue'
+                // 键后加上$,表示精准匹配
+                vue$: "vue/dist/vue.esm.js",
+                @: resolve("src"),
+                utils: resolve("src/utils"),
+                components: resolve("src/components"),
+                public: resolve("public")
+            }
+        },
+        module: {
+            // 处理模块的规则，此处可以使用不同的loader来处理模块
+            rules: [
+                // 使用babel-loader来处理src下的所有.js文件，具体babel配置在.babelrc文件中，主要是用来转义ES6的
+                {
+                    test: /\.js$/,
+                    use: {
+                        loader: "bable-loader"
+                    },
+                    include: resolve("src")
+                },
+                // 使用url-loader(file-loader的一个再封装)对引入的图片进行编码，此处可将小于8192字节(8KB)的图片转成base64
+                // 大于limit字节的会调用file-loader进行处理
+                // 图片一般发布后都是长缓存，因此文件名加入hash做版本区分
+                {
+                    test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                    loader: "url-loader",
+                    options: {
+                        limit: 8192,
+                        name: assetsPath("img/[name].[hash:8].[ext]")
+                    }
+                }
+            ]
+        }
+    };
+5. 构建build/webpack.dev.conf.js--主要用于构建开发环境
+    "use strict"
+    // 引入node路径模块
+    const path = require("path");
+    // 引入webpack
+    const webpack = require("webpack");
+    // 引入webpack开发环境配置参数
+    const devConfig = require("../config").dev;
+    // 引入webpack基本配置
+    const baseConf = require("./webpack.base.conf");
+    // 引入webpack配置合并模块，可简单理解为与Object.assign()功能类似
+    const merge = require("webpack-merge");
+    // 引入创建html入口文件的webpack插件
+    const HtmlWebpackPlugin = require("html-webpack-plugin");
+    // 引入编译提示的webpack插件
+    const FriendlyErrorsPlugin = require("friendly-errors-webpack-plugin");
+    // 引入发送系统通知的node模块
+    const notifier = require("node-notifier");
+    // 将webpack基本配置与开发环境配置合并
+    const devConf = merge(baseConf, {
+        // 项目出口，webpack-dev-server生成的包并没有写入硬盘，而是保存在内存中
+        output: {
+            // 文件名
+            filename: "[name].js",
+            // html引用资源路径
+            publicPath: devConfig.publicPath
+        },
+        // 生成sourceMaps(方便调试)
+        devtool: devConfig.devtoolType,
+        // 启动一个express服务器，使得可以在本地开发
+        devServer: {
+            // HMR控制台log等级
+            clientLogLevel: "warning",
+            // 是否启用热加载
+            hot: true,
+            // 是否启用自动刷新
+            inline: true,
+            // 是否自动打开浏览器
+            open: true,
+            // 在开发单页应用时非常有用，它依赖于HTML5 history API，如果设置为true，所有的跳转将指向index.html
+            historyApiFallback: true,
+            // 主机名
+            host: devConfig.host,
+            // 端口号
+            port: devConfig.port,
+            // 配置反向代理解决跨域
+            proxy: devConfig.proxyTable,
+            // 是否压缩代码，压缩代码可以加快开发流程和优化
+            compress: true,
+            // 在浏览器上全屏显示error和waring
+            overlay: {
+                errors: true,
+                warings: false
+            },
+            // 终端输出的只有初始启动信息。 webpack 的警告和错误是不输出到终端的
+            quiet: true
+        },
+        module: {
+            // 处理模块的规则(可在此处使用不同的loader来处理模块)
+            rules: [
+                // 使用vue-loader处理以vue结尾的文件
+                {
+                    test: /\.vue$/,
+                    loader: "vue-loader",
+                    options: devConfig.vueLoaderConf
+                },
+                // 使用vue-style-loader!css-loader!postcss-loader处理以css结尾的文件
+                {
+                    test: /\.css$/,
+                    use: [
+                        "vue-style-loader",
+                        {
+                            loader: "css-loader",
+                            options: {
+                                sourceMap: true
+                            }
+                        },
+                        {
+                            loader: "postcss-loader",
+                            options: {
+                                sourceMap: true
+                            }
+                        }
+                    ]
+                },
+                // 使用vue-style-loader!css-loader!postcss-loader处理以less结尾的文件
+                {
+                    test: /\.less$/,
+                    use: [
+                        "vue-style-loader",
+                        {
+                            loader: "css-loader",
+                            options: {
+                                sourceMap: true
+                            }
+                        },
+                        {
+                            loader: "less-loader",
+                            options: {
+                                sourceMap: true
+                            }
+                        },
+                        {
+                            loader: "postcss-loader",
+                            options: {
+                                sourceMap: true
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        plugins: [
+            // 开启HMR(热替换功能,替换更新部分,不重载页面)
+            new webpack.HotModuleReplacementPlugin(),
+            // 显示模块相对路径
+            new webpack.NamedModulesPlugin(),
+            // 编译出错时，该插件可以跳过输出，保证输出资源不会包含错误
+            new webpack.NoEmitOnErrorsPlugin(),
+            // 配置html入口信息
+            new HtmlWebpackPlugin({
+                title: "hello, xc-cli!",
+                filename: "index.html",
+                template: "index.html",
+                // js资源插入位置，true表示插入到body元素底部
+                inject: true
+            }),
+            // 编译提示插件
+            new FriendlyErrorsPlugin({
+                // 编译成功提示
+                compilationSuccessInfo: {
+                    message: [`Your application is running here: http://${devConfig.host}:${devConfig.port}`]
+                },
+                // 编译出错
+                onErrors: function (severity, errors) {
+                    if (severity !== "error") {
+                        return;
+                    }
+                    const error = errors[0];
+                    const filename = error.file.splite("!").pop();
+                    // 编译出错时，右下角弹出错误提示
+                    notifier.notify({
+                        title: "xc-cli",
+                        message: severity + ": " + error.name,
+                        subtitle: filename || "",
+                        icon: path.join(__dirname, "xc-cli.png")
+                    });
+                }
+            })
+        ]
+    })
+6. 构建build/webpack.prod.conf.js--主要用于构建生产环境的配置
+    "use strict"
+    // 引入node路径模块
+    const path = require("path");
+    // 引入webpack
+    const webpack = require("webpack");
+    // 引入webpack配置合并模块，可简单理解为与Object.assign()功能类似
+    const merge = require("webpack-merge");
+    // 引入webpack开发环境配置参数
+    const prodConfig = require("../config").build;
+    // 引入webpack基本配置
+    const baseConf = require("./webpack.base.conf");
+    // 引入创建html入口文件的webpack插件
+    const HtmlWebpackPlugin = require("html-webpack-plugin");
+    // 引入抽离出css的webpack插件
+    const ExtractTextPlugin = require("extract-text-webpack-plugin");
+    // 引入压缩css的webpack插件
+    const OptimizeCSSPlugin = require("optimize-css-assets-webpack-plugin");
+    // 引入拷贝文件的css插件
+    const CopyWebpackPlugin = require("copy-webpack-plugin");
+    // 资源路径
+    function assetsPath (_path) {
+        return path.join(prodConfig.staticPath, _path);
+    }
+    // 将webpack基本配置与生成环境配置合并
+    const prodConf = merge(baseConf, {
+        // 项目出口文件
+        output: {
+            // build后所有文件存放的位置
+            path: path.resolve(__dirname, "../public"),
+            // html引用资源路径，可在此配置cdn引用地址
+            publicPath: prodConfig.publicPath,
+            // 文件名
+            filename: assetsPath("js/[name].[chunkhash].js"),
+            // 用于打包require.ensure(代码分割)方法中引入的模块
+            chunkFilename: assetsPath("js/[name].[chunkhash].js")
+        },
+        // 生成sourceMaps(方便调试)
+        devtool: prodConfig.devtoolType,
+        module: {
+            // 处理模块的规则，此处可以使用不同的loader来处理模块
+            rules: [
+                // 使用vue-loader处理以vue结尾的文件
+                {
+                    test: /\.vue$/,
+                    loader: "vue-loader",
+                    options: prodConfig.vueLoaderConf
+                },
+                {
+                    test: /\.css$/,
+                    use: ExtractTextPlugin.extract({
+                        use: ["css-loader", "postcss-loader"],
+                        fallback: "vue-sytle-loader"
+                    })
+                },
+                {
+                    test: /\.less$/,
+                    use: ExtractTextPlugin.extract({
+                        use: ["css-loader", "less-loader", "postcss-loader"],
+                        fallback: "vue-style-loader"
+                    })
+                }
+            ]
+        },
+        plugins: [
+            // 每个chunk头部添加hey,xc-cli
+            new webpack.BannerPlugin("hey, xc-cli"),
+            // 压缩js
+            new webpack.optimizeUglifyJsPlugin({
+                parallel: true,
+                compress: {
+                    warnings: false
+                }
+            }),
+            // 分离入口引用的css，不内嵌到js bundle中
+            new ExtractTextPlugin({
+                filename: assetsPath("css/[name].[contenthash].css"),
+                allChunks: false
+            }),
+            // 压缩css
+            new OptimizeCSSPlugin(),
+            // 根据模块相对路径生成四位hash值作为模块id
+            new webpack.HashedModuleIdsPlugin(),
+            // 作用域提升，提升代码在浏览器中的运行速度
+            new webpack.optimize.ModuleConcatenationPlugin(),
+            // 抽离公共模块，合成一个chunk，在最开始加载一次，并缓存起来，用于提升速度
+            // 1.第三方库chunk
+            new webpack.optimize.CommonsChunkPlugin({
+                name: "verdor",
+                minChunks: function (module) {
+                    // 在node_modules的js文件
+                    return {
+                        module.resource && 
+                        /\.js$/.test(module.resource) && 
+                        module.resource.indexOf(path.join(__dirname, "../node_modules")) === 0
+                    };
+                }
+            }),
+            // 2.缓存chunk
+            new webpack.optimize.CommonsChunkPlugin({
+                name: "mainfest",
+                minChunks: Infinity
+            }),
+            // 3.异步 公共chunk
+            new webpack.optimize.CommonsChunkPlugin({
+                name: "app",
+                children: true,
+                // 选择所有被选chunks的子chunk
+                async: true,
+                // 创建一个异步 公共chunk
+                minChunks: 3
+                // 在提取之前至少需要3个子chunk共享这个模块
+            }),
+            // 将整个文件复制到构建输出指定目录下
+            new CopyWebpackPlugin([
+                {
+                    from: path.resolve(__dirname, "../static"),
+                    to: prodConfig.staticPath,
+                    ignore: [".*"]
+                }
+            ]),
+            // 生成html
+            new HtmlWebpackPlugin({
+                filename: path.resolve(__dirname, "../public/index.html"),
+                template: "index.html",
+                favicon: path.resolve(__dirname, "../favicon.ico"),
+                // js资源插入位置，true表示插入到body元素底部
+                inject: true,
+                // 压缩配置
+                minify: {
+                    // 删除html注释
+                    removeComments: true,
+                    // 去除空格
+                    collapseWhitespace: true,
+                    // 去除属性引号
+                    removeAttributeQuotes: true
+                },
+                // 根据依赖引入chunk
+                chunksSortMode: "dependency"
+            })
+        ]
+    });
+    module.exports = prodConf;
+7. 构建build/build.js--项目打包服务,用来构建一个全量压缩包
+    "use strict"
+    // node for loading
+    const ora = require("ora");
+    // rm-rf for node
+    const rm = require("rimraf");
+    // console for node
+    const chalk = require("chalk");
+    // path for node
+    const path = require("path");
+    // webpack
+    const webpack = require("webpack");
+    // webpack production setting
+    const config = require("./webpack.prod.conf");
+    // 指定删除的文件
+    const rmFile = path.resolve(__dirname, "public/static");
+    // build start loading
+    const spinner = ora("building for production...");
+    spinner.start();
+    // 构建全量压缩包
+    rm(rmFile, function (err) {
+        if (err) throw err;
+        webpack(config, function (err, stats) {
+            spinner.stop();
+            if (err) throw err;
+            process.stdout.write({
+                stats.toString({
+                    colors: true,
+                    module: false,
+                    chunk: false,
+                    children: false,
+                    chunkModules: false
+                }) + "\n\n"
+            });
+            if (stats.hasErrors()) {
+                console.log(chalk.red("Build failed with errors. \n"));
+                process.exit(1);
+            }
+            console.log(chalk.cyan("Build complete. \n"));
+            console.log(chalk.yellow("Tips: built files are meant to be served over an HTTP server. \n" + "Openning index.html over file://won't work. \n"));
+        });
+    });
