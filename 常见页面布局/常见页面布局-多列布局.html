@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>常见页面布局-多列布局</title>
+    <style>
+        .four-equal-float {
+            overflow: hidden;
+        }
+        .four-equal-float .column {
+            float: left;
+            width: 25%;
+            height: 100px;
+        }
+        .four-equal-float .column:nth-child(odd) {
+            background-color: palegreen;
+        }
+        .four-equal-float .column:nth-child(even) {
+            background-color: red;
+        }
+        .four-equal-table {
+            margin-top: 10px;
+            display: table;
+            width: 100%;
+            height: 100px;
+        }
+        .four-equal-table .column {
+            display: table-cell;
+        }
+        .four-equal-table .column:nth-child(odd) {
+            background-color: salmon;
+        }
+        .four-equal-table .column:nth-child(even) {
+            background-color: teal;
+        }
+        .four-equal-flex {
+            margin-top: 10px;
+            display: flex;
+            height: 100px;
+        }
+        .four-equal-flex .column {
+            flex: 1;
+        }
+        .four-equal-flex .column:nth-child(odd) {
+            background-color: white;
+        }
+        .four-equal-flex .column:nth-child(even) {
+            background-color: yellowgreen;
+        }
+        .multi-equal-float {
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .multi-equal-float .column {
+            width: 12.5%;       /* 需要知道列数，用100%除以列数为每列的宽度 */
+            float: left;
+            height: 100px;
+        }
+        .multi-equal-float .column:nth-child(odd) {
+            background-color: aqua;
+        }
+        .multi-equal-float .column:nth-child(even) {
+            background-color: black;
+            color: white;
+        }
+        .multi-equal-table {
+            margin-top: 10px;
+            width: 100%;
+            display: table;
+        }
+        .multi-equal-table .column {
+            display: table-cell;
+            height: 100px;
+        }
+        .multi-equal-table .column:nth-child(odd) {
+            background-color: chocolate;
+        }
+        .multi-equal-table .column:nth-child(even) {
+            background-color: darkgoldenrod;
+        }
+        .multi-equal-flex {
+            margin-top: 10px;
+            height: 100px;
+            display: flex;
+        }
+        .multi-equal-flex .column {
+            flex: 1;
+        }
+        .multi-equal-flex .column:nth-child(odd) {
+            background-color: forestgreen;
+        }
+        .multi-equal-flex .column:nth-child(even) {
+            background-color: gold;
+        }
+        .multi-equal-grid {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);      /* 8为列数 */
+        }
+        .multi-equal-grid .column:nth-child(odd) {
+            background-color: ivory;
+        }
+        .multi-equal-grid .column:nth-child(even) {
+            background-color: lawngreen;
+        }
+        .square-table {
+            width: 1200px;
+            height: 300px;
+            margin: 10px auto 0;
+            display: table;
+        }
+        .square-table .row {
+            display: table-row;
+        }
+        .square-table .item {
+            display: table-cell;
+            height: 100px;
+            border: 1px solid mediumaquamarine;
+        }
+        .square-flex {
+            width: 1200px;
+            height: 300px;
+            margin: 10px auto 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .square-flex .row {
+            flex: 1;
+            display: flex;
+        }
+        .square-flex .item {
+            flex: 1;
+            border: 1px solid olivedrab;
+        }
+        .square-grid {
+            width: 1200px;
+            height: 300px;
+            margin: 10px auto 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        .square-grid .item {
+            border: 1px solid paleturquoise;
+        }
+    </style>
+</head>
+<body>
+    <!-- 等宽布局 -->
+    <!-- 四列等宽 -->
+    <!-- 使用float实现 -->
+    <!-- 
+        优点：代码简单，容易理解；兼容性较好
+        缺点：需要手动清除浮动，否则会产生高度塌陷
+     -->
+    <div class="four-equal-float">
+        <div class="column">1 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">2 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">3 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">4 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+    </div>
+    <!-- 使用table实现 -->
+    <!-- 
+        优点：代码简单，容易理解；无需关注宽度，单元格自动等分
+        缺点：margin失效；设置间隔比较麻烦；不支持ie8-
+     -->
+    <div class="four-equal-table">
+        <div class="column">1 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">2 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">3 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">4 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+    </div>
+    <!-- 使用flex实现 -->
+    <div class="four-equal-flex">
+        <div class="column">1 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">2 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">3 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">4 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+    </div>
+    <!-- 多列等宽 -->
+    <!-- 使用float实现 -->
+    <!-- 
+        优点：代码简单，容易理解；兼容性较好
+        缺点：需要手动清除浮动，否则会产生高度塌陷，需要知道一共多少列，否则无法计算列宽
+     -->
+    <div class="multi-equal-float">
+        <div class="column">1 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">2 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">3 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">4 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">5 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">6 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">7 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">8 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+    </div>
+    <!-- 使用table实现 -->
+    <!-- 
+        优点：代码简单，容易理解；无需关注宽度。单元格自动等分
+        缺点：margin失效；设置间隔比较麻烦；不兼容ie8-
+     -->
+    <div class="multi-equal-table">
+        <div class="column">1 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">2 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">3 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">4 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">5 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">6 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">7 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">8 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+    </div>
+    <!-- 使用flex实现 -->
+    <div class="multi-equal-flex">
+        <div class="column">1 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">2 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">3 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">4 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">5 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">6 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">7 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">8 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+    </div>
+    <!-- 使用grid实现 -->
+    <div class="multi-equal-grid">
+        <div class="column">1 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">2 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">3 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">4 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">5 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">6 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">7 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+        <div class="column">8 <p>我是文字我是文字我是文字我是文字我是文字</p></div>
+    </div>
+    <!-- 九宫格布局 -->
+    <!-- 使用table实现 -->
+    <!-- 
+        优点：代码简洁，容易理解；
+        缺点：margin失效，采用border-spacing表格两边的间隔无法消除；不支持ie8-
+     -->
+    <div class="square-table">
+        <div class="row">
+            <div class="item">1</div>
+            <div class="item">2</div>
+            <div class="item">3</div>
+        </div>
+        <div class="row">
+            <div class="item">4</div>
+            <div class="item">5</div>
+            <div class="item">6</div>
+        </div>
+        <div class="row">
+            <div class="item">7</div>
+            <div class="item">8</div>
+            <div class="item">9</div>
+        </div>
+    </div>
+    <!-- 使用flex实现 -->
+    <div class="square-flex">
+        <div class="row">
+            <div class="item">1</div>
+            <div class="item">2</div>
+            <div class="item">3</div>
+        </div>
+        <div class="row">
+            <div class="item">4</div>
+            <div class="item">5</div>
+            <div class="item">6</div>
+        </div>
+        <div class="row">
+            <div class="item">7</div>
+            <div class="item">8</div>
+            <div class="item">9</div>
+        </div>
+    </div>
+    <!-- 使用grid实现 -->
+    <div class="square-grid">
+        <div class="item">1</div>
+        <div class="item">2</div>
+        <div class="item">3</div>
+        <div class="item">4</div>
+        <div class="item">5</div>
+        <div class="item">6</div>
+        <div class="item">7</div>
+        <div class="item">8</div>
+        <div class="item">9</div>
+    </div>
+</body>
+</html>

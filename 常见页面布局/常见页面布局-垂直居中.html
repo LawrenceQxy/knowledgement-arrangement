@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>常见页面布局-垂直居中</title>
+</head>
+<style>
+    .single-line-text {
+        height: 50px;
+        line-height: 50px;
+        border: 1px solid;
+    }
+    .multi-lines-text {
+        margin-top: 10px;
+        border: 1px solid;
+        width: 125px;
+        height: 150px;
+        line-height: 30px;  /* 元素在页面呈现为5行,则line-height的值为height/5 */
+    }
+    .vertical-parent {
+        height: 150px;
+        line-height: 150px;
+        font-size: 0;
+        margin-top: 10px;
+        border: 1px solid;
+    }
+    .vertical-parent img {
+        vertical-align: middle;
+    }
+    .table-cell {
+        display: table-cell;
+        vertical-align: middle;
+        margin-top: 10px;      /* 不生效 */
+        border: 1px solid;
+        height: 150px;
+    }
+    .pos-parent-1,
+    .pos-parent-2 {
+        position: relative;
+        height: 150px;
+        border: 1px solid;
+        margin-top: 10px;
+    }
+    .pos-parent-1 .pos-son {
+        position: absolute;
+        height: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        line-height: 50px;
+    }
+    .pos-parent-2 .pos-son {
+        position: absolute;
+        margin: auto 0;
+        top: 0;
+        bottom: 0;
+        height: 50px;
+        line-height: 50px;
+    }
+    .flex-parent-1 {
+        display: flex;
+        height: 150px;
+        align-items: center;
+        border: 1px solid;
+        margin-top: 10px;
+    }
+    .flex-parent-2 {
+        display: flex;
+        height: 150px;
+        border: 1px solid;
+        margin-top: 10px;
+    }
+    .flex-parent-2 .flex-son {
+        align-self: center;
+    }
+    .flex-parent-3 {
+        display: flex;
+        height: 150px;
+        border: 1px solid;
+        margin-top: 10px;
+    }
+    .flex-parent-3 .flex-son {
+        margin: auto 0;
+    }
+    .flex-parent-4 {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 150px;
+        border: 1px solid;
+        margin-top: 10px;
+    }
+</style>
+<body>
+    <!-- 1) 单行文本/行内元素/行内块元素 -->
+    <!-- 
+         优点：简单；兼容性好 
+         缺点：只能用于单行行内内容；要知道高度的值
+     -->
+    <div class="single-line-text">
+        <span>single-line-text</span>
+    </div>
+    <!-- 2) 多行文本/行内元素/行内块级元素 -->
+    <!-- 
+         优点：简单；兼容性好 
+         缺点：只能用于行内内容；需要知道高度和最终呈现多少行来计算出line-height的值，建议用span包裹多行文本
+     -->
+    <div class="multi-lines-text">
+        <span>multi-lines-text</span>
+        <span>multi-lines-text</span>
+        <span>multi-lines-text</span>
+        <span>multi-lines-text</span>
+        <span>multi-lines-text</span>
+    </div>
+    <!-- 3) 图片 -->
+    <!-- 
+         优点：简单；兼容性好 
+         缺点：需要添加font-size: 0; 才可以完全的垂直居中；不过需要主要，html#parent包裹img之间需要有换行或空格
+     -->
+    <div class="vertical-parent">
+        <img src="./imgs/back.png" alt="" srcset="">
+    </div>
+    <!-- 4) 单个块元素 -->
+    <!-- 4-1 使用table-cell -->
+    <!-- 
+        优点：简单；宽高不定；兼容性好（ie8+） 
+        缺点：设置tabl-cell的元素，宽度和高度的值设置百分比无效，需要给它的父元素设置display: table; 才生效；table-cell不感知margin，在父元素上设置table-row等属性，也会使其不感知height；设置float或position会对默认布局造成破坏，可以考虑为之增加一个父div定义float等属性；内容溢出时会自动撑开父元素。
+     -->
+    <div class="table-cell">
+        <div>table-cell</div>
+    </div>
+    <!-- 4-2 使用绝对定位 -->
+    <!-- 
+         优点：使用margin-top兼容性好；不管是块级还是行内元素都可以实现
+         缺点：代码较多；脱离文档流；使用margin-top需要知道高度值；使用transform兼容性不好（ie9+）
+     -->
+    <div class="pos-parent-1">
+        <div class="pos-son">pos-son-1</div>
+    </div>
+    <!-- 
+         当top、bottom为0时,margin-top&bottom会无限延伸占满空间并且平分
+         优点：简单;兼容性较好(ie8+)
+         缺点：脱离文档流
+     -->
+    <div class="pos-parent-2">
+        <div class="pos-son">pos-son-2</div>
+    </div>
+    <!-- 5) flex弹性盒模型 -->
+    <!-- 
+         优点：简单灵活；功能强大 
+         缺点：PC端兼容性不好，移动端（Android4.0+）
+     -->
+    <div class="flex-parent-1">
+        <div class="flex-son">flex-son-1</div>
+    </div>
+    <div class="flex-parent-2">
+        <div class="flex-son">flex-son-2</div>
+    </div>
+    <div class="flex-parent-3">
+        <div class="flex-son">flex-son-3</div>
+    </div>
+    <div class="flex-parent-4">
+        <div class="flex-son">flex-son-4</div>
+        <div class="flex-son">flex-son-4</div>
+        <div class="flex-son">flex-son-4</div>
+        <div class="flex-son">flex-son-4</div>
+    </div>
+    <!-- 
+        小结：
+        垂直居中首先想到的就是line-height，但是该属性只能用于行内内容；
+        其次就是考虑能不能用vertical-align: middle; ，不过这个一定要熟知原理才能用得顺手；
+        然后便是绝对定位，虽然代码多了点，但是胜在适用于不同情况；
+        移动端兼容性允许的情况下能用flex就用flex
+     -->
+</body>
+</html>

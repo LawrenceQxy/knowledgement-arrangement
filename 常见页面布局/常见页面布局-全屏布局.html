@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>常见页面布局-全屏布局</title>
+    <style>
+        .fullscreen-position {
+            height: 90vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .fullscreen-position>div {
+            border: 1px solid rosybrown;
+            box-sizing: border-box;
+        }
+        .fullscreen-position .top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+        }
+        .fullscreen-position .left {
+            position: absolute;
+            left: 0;
+            top: 100px;     /* 大于等于.top的高度 */
+            bottom: 50px;   /* 大于等于.bottom的高度 */
+            width: 200px;
+        }
+        .fullscreen-position .right {
+            position: absolute;
+            left: 200px;    /* 大于等于.left的宽度 */
+            right: 0;
+            top: 100px;     /* 大于等于.top的高度 */
+            bottom: 50px;   /* 大于等于.bottom的高度 */
+        }
+        .fullscreen-position .bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+        }
+        .fullscreen-flex {
+            height: 90vh;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .fullscreen-flex div {
+            border: 1px solid sandybrown;
+            box-sizing: border-box;
+        }
+        .fullscreen-flex .top {
+            height: 100px;
+        }
+        .fullscreen-flex .middle {
+            flex: 1;
+            display: flex;
+            border: none;
+        }
+        .fullscreen-flex .middle .left {
+            width: 200px;
+        }
+        .fullscreen-flex .middle .right {
+            flex: 1;
+        }
+        .fullscreen-flex .bottom {
+            height: 50px;
+        }
+        .fullscreen-grid {
+            margin-top: 10px;
+            height: 90vh;
+            display: grid;
+            /*分成2列,第一列宽度200px,第二列1fr平分剩余的部分,此处换成auto也行*/
+            grid-template-columns: 200px 1fr;  
+            /*分成3行,第一行高度100px,第二行auto为自适应,此处换成1fr也行,第3行高度为50px*/
+            grid-template-rows: 100px auto 50px;
+            /* 定义网格区域分布 */
+            grid-template-areas: "top top" "left right" "bottom bottom"
+        }
+        .fullscreen-grid>div {
+            border: 1px solid thistle;
+            box-sizing: border-box;
+        }
+        .fullscreen-grid .top {
+            grid-area: top;  /*指定在哪个网格区域*/
+        }
+        .fullscreen-grid .left {
+            grid-area: left;  /*指定在哪个网格区域*/
+        }
+        .fullscreen-grid .right {
+            grid-area: right;  /*指定在哪个网格区域*/
+        }
+        .fullscreen-grid .bottom {
+            grid-area: bottom;  /*指定在哪个网格区域*/
+        }
+    </style>
+</head>
+<body>
+    <!-- 全屏布局 -->
+    <!-- 使用绝对定位实现 -->
+    <!-- 
+        优点：容易理解
+        缺点：代码繁多；需要计算好各个盒子的宽高；
+     -->
+    <div class="fullscreen-position">
+        <div class="top">top</div>
+        <div class="left">left</div>
+        <div class="right">right</div>
+        <div class="bottom">bottom</div>
+    </div>
+    <!-- 使用flex实现 -->
+    <div class="fullscreen-flex">
+        <div class="top">top</div>
+        <div class="middle">
+            <div class="left">left</div>
+            <div class="right">right</div>
+        </div>
+        <div class="bottom">bottom</div>
+    </div>
+    <!-- 使用grid实现 -->
+    <div class="fullscreen-grid">
+        <div class="top">top</div>
+        <div class="left">left</div>
+        <div class="right">right</div>
+        <div class="bottom">bottom</div>
+    </div>
+</body>
+</html>
